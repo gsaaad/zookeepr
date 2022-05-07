@@ -171,6 +171,24 @@
         "hungry"
       ],
       "id": "17"
+    },
+    {
+      "name": "Linda",
+      "species": "Giraffe",
+      "diet": "folivore",
+      "personalityTraits": [
+        "anxious"
+      ],
+      "id": "18"
+    },
+    {
+      "name": "Linda",
+      "species": "Giraffe",
+      "diet": "folivore",
+      "personalityTraits": [
+        "anxious"
+      ],
+      "id": "19"
     }
   ]
 }

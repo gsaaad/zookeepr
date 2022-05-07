@@ -18,6 +18,9 @@ app.use(express.urlencoded({ extended: true }));
 //parse incoming JSON data
 app.use(express.json());
 
+//this allows you to access the public folder and utilize CSS/scripts images etc upon loading
+app.use(express.static("public"));
+
 //functions
 
 function filterByQuery(query, animalsArray) {
@@ -117,7 +120,7 @@ function validateAnimal(animal) {
   return true;
 }
 
-//sidePage Animals data
+//GET animals DATA
 app.get("/api/animals", (req, res) => {
   let results = animalsList;
   // console.log(animals);
@@ -135,6 +138,7 @@ app.get("/api/animals/:id", (req, res) => {
   res.json(result);
 });
 
+//POST animals DATA
 app.post("/api/animals", (req, res) => {
   //req body is where our incoming content will be
   console.log(req.body);
@@ -154,6 +158,24 @@ app.post("/api/animals", (req, res) => {
     const animal = createNewAnimal(req.body, animalsList);
     res.json(animal);
   }
+});
+
+//get ROUTE, MAIN page
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/index.html"));
+});
+// get ROUTE, side Page/sideData animals
+app.get("/animals", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/animals.html"));
+});
+// get ROUTE, side Page/sideData Zookeepers
+app.get("/zookeepers", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/zookeepers.html"));
+});
+
+//get ROUTE, * Wild Card {COMES LAST}, if user somehow asks for any other route, come here~
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/index.html"));
 });
 
 // SERVER IS LIVE
