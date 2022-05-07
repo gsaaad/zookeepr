@@ -1,8 +1,24 @@
 const express = require("express");
+const fs = require("fs");
+const path = require("path");
 const animals = require("./data/animals.json");
+
+var animalsList = animals.animals;
+console.log(animalsList);
+// console.log(animalsList.length, "this is animal list length");
+
 const PORT = process.env.PORT || 3001;
 
+//use express
 const app = express();
+
+//parse incoming string/array data
+app.use(express.urlencoded({ extended: true }));
+
+//parse incoming JSON data
+app.use(express.json());
+
+//functions
 
 function filterByQuery(query, animalsArray) {
   //had to add animals because it was JSON, turned to array
@@ -63,10 +79,48 @@ function findById(id, animalsArray) {
   }
 }
 
+function createNewAnimal(body, animalsArray) {
+  console.log(body, "This is body, from inside createNewAnimal");
+  //function's main code
+  const animal = body;
+  // add to animalsArray
+  animalsArray.push(animal);
+
+  //then write into the file itself
+  //writeFileSync is synchronous, if data was large enough, use async version
+  fs.writeFileSync(
+    path.join(__dirname, "./data/animals.json"),
+    JSON.stringify({ animals: animalsArray }, null, 2)
+  );
+  //return finished code to post route for response
+  return animal;
+}
+
+function validateAnimal(animal) {
+  //if no name, or type is not string, not valid
+  if (!animal.name || typeof animal.name !== "string") {
+    return false;
+  }
+
+  //if no species, or type not string, not valid
+  if (!animal.species || typeof animal.species !== "string") {
+    return false;
+  }
+  //if no diet, or type is not string, not valid
+  if (!animal.diet || typeof animal.diet !== "string") {
+    return false;
+  }
+  //if no personalit traits, or array is not an array, not valid
+  if (!animal.personalityTraits || !Array.isArray(animal.personalityTraits)) {
+    return false;
+  }
+  return true;
+}
+
 //sidePage Animals data
 app.get("/api/animals", (req, res) => {
-  let results = animals;
-  console.log(animals);
+  let results = animalsList;
+  // console.log(animals);
   if (req.query) {
     results = filterByQuery(req.query, results);
   }
@@ -76,11 +130,33 @@ app.get("/api/animals", (req, res) => {
 
 //sidePage animals data by ID
 app.get("/api/animals/:id", (req, res) => {
-  const result = findById(req.params.id, animals);
+  const result = findById(req.params.id, animalsList);
   console.log("Sending results, by chosen ID");
   res.json(result);
 });
 
+app.post("/api/animals", (req, res) => {
+  //req body is where our incoming content will be
+  console.log(req.body);
+  //set id based on what the next index of the array will be
+
+  console.log(animalsList.length);
+
+  req.body.id = animalsList.length.toString();
+
+  //if any data in req.body is incorrect, send 404 error back
+
+  if (!validateAnimal(req.body)) {
+    res.status(400).send("The animal is not properly formatted, check input!");
+  } else {
+    //add animal to json file and animals array in this function
+
+    const animal = createNewAnimal(req.body, animalsList);
+    res.json(animal);
+  }
+});
+
+// SERVER IS LIVE
 app.listen(PORT, () => {
   console.log(`SERVER ONLINE~, now on port ~${PORT}`);
 });
