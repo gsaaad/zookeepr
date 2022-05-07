@@ -6,7 +6,7 @@ const app = express();
 
 function filterByQuery(query, animalsArray) {
   //had to add animals because it was JSON, turned to array
-  let filteredResults = animalsArray.animals;
+  let filteredResults = animalsArray;
   //personalityTraits
   let personalityTraitsArray = [];
 
@@ -54,13 +54,31 @@ function filterByQuery(query, animalsArray) {
   return filteredResults;
 }
 
+function findById(id, animalsArray) {
+  const result = animalsArray.filter((animal) => animal.id === id)[0];
+  if (result) {
+    res.json(result);
+  } else {
+    res.send(404);
+  }
+}
+
+//sidePage Animals data
 app.get("/api/animals", (req, res) => {
   let results = animals;
+  console.log(animals);
   if (req.query) {
     results = filterByQuery(req.query, results);
   }
-  console.log("Sending results");
+  console.log("Sending results, all animals");
   res.json(results);
+});
+
+//sidePage animals data by ID
+app.get("/api/animals/:id", (req, res) => {
+  const result = findById(req.params.id, animals);
+  console.log("Sending results, by chosen ID");
+  res.json(result);
 });
 
 app.listen(PORT, () => {
